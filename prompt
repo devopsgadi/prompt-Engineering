@@ -1,0 +1,25 @@
+I need to create a new pipeline template for a Node.js web service that uses Helm for deployment to our on-premises Dev environment.
+
+Specific Template Requirements:
+
+The CI stages must include: NPM dependency auditing (security scan), Linting, and Unit Test execution.
+
+The pipeline must build a Docker image and push it to the configured internal corporate registry address defined in the codebase.
+
+The deployment must use the standard on-premises base Helm chart structure for the Dev environment within the repository.
+
+Instructions for Analysis:
+
+Scan the Documentation: locate the Markdown files (.md) that describe the prerequisites and workflow for creating Node.js templates.
+
+Analyze the Schema: Look specifically within the charts/node-service/ or similar directory for the Helm charts (values.yaml) to find the required parameters for internal registries and resource limits.
+
+Find Reference Implementations: Look for valid, working configuration patterns that specifically target an on-premises Dev cluster.
+
+Output Requirements: Based on the codebase analysis, please provide:
+
+The Exact YAML/Configuration: Generate the complete Helm values.yaml and any necessary deployment manifest. Do not hallucinate parameters; strict adherence to the codebase schema is required.
+
+The Command: Provide the exact helm upgrade --install command, including all necessary flags and arguments, to deploy this template.
+
+Validation: Briefly explain which file in the repo you used as the "source of truth" for the internal registry URL.
