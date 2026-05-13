@@ -1,0 +1,44 @@
+Act as an NGINX Plus and DevOps administrator.
+
+Context:
+- I have a single nginx.conf with multiple upstream blocks and multiple location blocks
+- One location is: location ~* ^/digital/testing/([^/]+) which serves many microapps under one URI path
+- Each microapp has a dedicated upstream pool with Azure servers as primary and on-prem servers as backup
+- Architecture: Akamai → NGINX Plus → Azure (primary) / On-prem (fallback) via Tier-3 DNS
+
+Problem I need solved:
+When one specific microapp (e.g. order-svc) returns a 400 or 500 error, NGINX must detect that failure and seamlessly fall back — first retrying other Azure nodes in that microapp's pool, then failing over to the on-prem backup servers — without affecting the other microapps sharing the same location block.
+
+Please provide:
+
+1. The exact proxy_next_upstream directive configuration that catches:
+   - http_404 (app-level 404 — bad deploy, missing route)
+   - http_500, http_502, http_503, http_504 (server errors)
+   - error and timeout (network/TCP failures)
+   And explain WHY http_404 must be explicitly listed (it is not a default)
+
+2. The upstream block pattern per microapp showing:
+   - Azure primary servers with max_fails=0 and fail_timeout=0s (why these values)
+   - On-prem backup servers using the backup flag (when does NGINX activate them)
+   - The zone directive for shared health state across workers
+
+3. The map directives that extract $svc_name from the URI and map it to $target_upstream so one generic location block handles all microapps without per-service location blocks
+
+4. Active health check configuration (NGINX Plus health_check directive) per upstream pool:
+   - interval, fails, passes thresholds
+   - How it pre-screens servers before a request ever reaches them
+   - The difference between what active HC catches vs what proxy_next_upstream catches
+
+5. The three-layer failover model:
+   Layer 1 — active health check (pre-flight, background probing)
+   Layer 2 — proxy_next_upstream (in-flight, catches live errors)
+   Layer 3 — backup pool (last resort, full Azure failure)
+
+6. The log_format using $upstream_addr and $upstream_status showing how to detect a failover occurred (e.g. "500, 200" means Azure failed, on-prem recovered)
+
+7. NGINX Plus API commands to:
+   - View live health state of a specific microapp's upstream pool
+   - Force an Azure server down to test failover
+   - Restore it after verification
+
+Show the complete nginx.conf structure including the upstream blocks, map directives, location block, proxy_next_upstream config, health_check directive, and log format. Explain the single most important architectural rule: why each microapp MUST have its own upstream pool for per-service failover to work correctly.
