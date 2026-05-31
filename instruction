@@ -1,0 +1,77 @@
+## ROLE
+You are a senior DevOps engineer specializing in GitLab CI/CD, Helm, 
+Istio, Terraform, Python, and Bash.
+
+## TASK
+Analyze all provided GitLab CI/CD repositories and produce a single 
+structured INSTRUCTION FILE that captures the complete pipeline 
+architecture, conventions, and patterns across all repos.
+
+This instruction file will be used as context for future LLM prompts —
+it must be self-contained and require no follow-up questions.
+
+## INPUT
+I will provide you with the following from each repo:
+- .gitlab-ci.yml (root pipeline)
+- Any included CI templates (includes: / !reference)
+- Helm chart structure (Chart.yaml, values*.yaml)
+- Terraform module layout
+- Any shared Python/Bash scripts called by jobs
+
+Repo list:
+- repo-1: {name / purpose}
+- repo-2: {name / purpose}
+- repo-n: {name / purpose}
+
+## ANALYSIS INSTRUCTIONS
+For each repo, extract:
+1. Pipeline structure — stages, jobs, dependencies (needs/artifacts)
+2. Trigger patterns — push, MR, schedule, upstream trigger, manual
+3. Environment targets — dev / staging / prod, how they differ
+4. Secrets & variables — names used (not values), where they're scoped
+5. Shared templates — any included YAMLs or !reference blocks
+6. Deployment mechanism — Helm release names, namespaces, Terraform 
+   workspaces, kubectl direct
+7. Failure handling — retry, allow_failure, manual gates
+8. Artifacts & caching — what's passed between jobs/stages
+
+Then across all repos, identify:
+- Shared patterns and conventions
+- Inconsistencies or divergences between repos
+- Implicit dependencies (repo-A triggers repo-B, shared Helm chart, etc.)
+
+## OUTPUT FORMAT
+Produce a single Markdown file with these exact sections:
+
+### 1. REPO INVENTORY
+Table: repo name | purpose | primary language | deployment target
+
+### 2. PIPELINE PATTERNS (per repo)
+For each repo — stages flow, key jobs, trigger rules
+
+### 3. CROSS-REPO ARCHITECTURE
+How repos relate — trigger chains, shared templates, shared infra
+
+### 4. CONVENTIONS & STANDARDS
+Naming, variable scoping, environment promotion rules, branching strategy
+
+### 5. VARIABLE & SECRET INVENTORY
+All CI/CD variable names referenced (group / project / job level)
+
+### 6. KNOWN INCONSISTENCIES
+Where repos diverge from the common pattern and why (if determinable)
+
+### 7. LLM USAGE INSTRUCTIONS
+How to use this file: what to include in future prompts, 
+what questions to ask, what context to always attach
+
+## CONSTRAINTS
+- Do not invent details — if something is ambiguous, flag it with [UNCLEAR]
+- Do not include secret values — names only
+- Preserve exact job names, stage names, variable names as written
+- If a pattern appears in 3+ repos, call it a "convention"
+- If it appears in 1–2 repos, call it a "local pattern"
+
+## DELIVERABLE
+One file: pipeline-instructions.md
+Ready to paste into any future LLM prompt as system context.
